@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "Creating admin user"
+if [[ -f /var/.mysql_admin_user_created ]]; then
+  echo "Already created MySQL admin user"
+  exit 0
+fi
+echo "Admin user doesn't exist, creating..."
+/usr/bin/mysqld_safe &
+
+echo "MySQL booted"
+USEPASS=${PASS:-password}
+
+echo "USEPASS allocated as $USEPASS"
+
+echo "Creating MySQL Admin User"
+EXIT_CODE=1
+
+while [[ EXIT_CODE -ne 0 ]]; do
+  sleep 5
+  mysql -uroot -e "CREATE USER 'admin'@'%' IDENTIFIED BY '$USEPASS'"
+  EXIT_CODE=$?
+done
+
+mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION"
+mysqladmin -uroot shutdown
+
+echo "MySQL Admin User successfully created"
+touch /var/.mysql_admin_user_created

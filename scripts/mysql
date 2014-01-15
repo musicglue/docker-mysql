@@ -1,0 +1,5 @@
+#!/bin/bash
+if [[ ! -f /var/mysql_admin_user_created ]]; then
+  /scripts/create_admin_user
+fi
+exec mysqld_safe
